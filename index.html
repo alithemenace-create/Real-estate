@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Property Manager</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f4f6f7;--card:#fff;--ink:#14233a;--mute:#6a7686;--line:#e2e7ec;--acc:#0f766e;--acc-ink:#fff;--rent:#2563eb;--sale:#b45309;--ok:#15803d;--warn:#b45309;--bad:#6b7280;--shadow:0 1px 2px rgba(20,35,58,.06);
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0e1621;--card:#16212f;--ink:#e8edf3;--mute:#93a0b0;--line:#26344a;--acc:#2dd4bf;--acc-ink:#06201d;--rent:#7aa7ff;--sale:#f0b35a;--ok:#4ade80;--warn:#f0b35a;--bad:#9aa5b4}}
+:root[data-theme="dark"]{--bg:#0e1621;--card:#16212f;--ink:#e8edf3;--mute:#93a0b0;--line:#26344a;--acc:#2dd4bf;--acc-ink:#06201d;--rent:#7aa7ff;--sale:#f0b35a;--ok:#4ade80;--warn:#f0b35a;--bad:#9aa5b4}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:500 15px/1.5 Manrope,system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{max-width:1180px;margin:0 auto;padding:20px 16px 60px}
+header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:20px}
+h1{margin:0;font-size:24px;font-weight:800;letter-spacing:-.02em}
+h1 small{display:block;font-size:13px;font-weight:500;color:var(--mute);letter-spacing:0}
+button,input,select,textarea{font:inherit;color:inherit}
+.btn{border:1px solid var(--line);background:var(--card);padding:10px 16px;border-radius:10px;cursor:pointer;font-weight:600;min-height:42px}
+.btn.primary{background:var(--acc);color:var(--acc-ink);border-color:var(--acc)}
+.btn.danger{color:#dc2626}
+.btn:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-bottom:20px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.stat b{display:block;font-size:24px;font-weight:800;letter-spacing:-.02em}
+.stat span{color:var(--mute);font-size:13px}
+.bar{display:grid;gap:10px;grid-template-columns:1fr;margin-bottom:18px}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}
+.tab{border:1px solid var(--line);background:var(--card);border-radius:999px;padding:8px 16px;cursor:pointer;font-weight:600;white-space:nowrap}
+.tab[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.filters{display:grid;gap:10px;grid-template-columns:1fr 1fr}
+.filters input[type=search]{grid-column:1/-1}
+input,select,textarea{width:100%;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px;min-height:42px}
+@media(min-width:760px){.filters{grid-template-columns:2fr 1fr 1fr 1fr}.filters input[type=search]{grid-column:auto}}
+.grid{display:grid;gap:16px;grid-template-columns:repeat(auto-fill,minmax(290px,1fr))}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px;box-shadow:var(--shadow);border-top:4px solid var(--rent)}
+.card.sale{border-top-color:var(--sale)}
+.row{display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.card h3{margin:0;font-size:17px;line-height:1.3}
+.loc{color:var(--mute);font-size:14px}
+.price{font-size:22px;font-weight:800;letter-spacing:-.02em}
+.price small{font-size:13px;font-weight:600;color:var(--mute)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:12.5px;font-weight:600;padding:3px 10px;border-radius:999px;border:1px solid var(--line);color:var(--mute)}
+.chip.ok{color:var(--ok);border-color:currentColor}.chip.warn{color:var(--warn);border-color:currentColor}.chip.bad{color:var(--bad);border-color:currentColor}
+.specs{display:flex;flex-wrap:wrap;gap:14px;font-size:14px;color:var(--mute)}
+.specs b{color:var(--ink)}
+.owner{font-size:13.5px;color:var(--mute);border-top:1px solid var(--line);padding-top:10px;margin-top:auto}
+.acts{display:flex;gap:8px}
+.acts .btn{flex:1;padding:8px;min-height:38px;font-size:14px}
+.empty{grid-column:1/-1;text-align:center;padding:50px 16px;color:var(--mute);background:var(--card);border:1px dashed var(--line);border-radius:14px}
+dialog{border:none;border-radius:16px;padding:0;width:min(640px,calc(100% - 24px));max-height:calc(100% - 24px);background:var(--card);color:var(--ink)}
+dialog::backdrop{background:rgba(10,18,30,.55)}
+.mh{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--card)}
+.mh h2{margin:0;font-size:19px}
+.fg{display:grid;gap:14px;padding:20px;grid-template-columns:1fr}
+@media(min-width:560px){.fg{grid-template-columns:1fr 1fr}.full{grid-column:1/-1}}
+label{display:block;font-size:13px;font-weight:600;color:var(--mute);margin-bottom:5px}
+.mf{display:flex;justify-content:flex-end;gap:10px;padding:14px 20px;border-top:1px solid var(--line);position:sticky;bottom:0;background:var(--card)}
+.x{border:none;background:none;font-size:24px;cursor:pointer;line-height:1;padding:4px 8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>Property Manager<small>Residential and commercial, for rent or sale</small></h1>
+  <div style="display:flex;gap:8px">
+    <button class="btn" id="theme" aria-label="Toggle dark mode">Theme</button>
+    <button class="btn primary" id="add">Add property</button>
+  </div>
+</header>
+
+<section class="stats" id="stats"></section>
+
+<section class="bar">
+  <div class="tabs" id="tabs">
+    <button class="tab" data-c="all" aria-pressed="true">All</button>
+    <button class="tab" data-c="Residential" aria-pressed="false">Residential</button>
+    <button class="tab" data-c="Commercial" aria-pressed="false">Commercial</button>
+  </div>
+  <div class="filters">
+    <input type="search" id="q" placeholder="Search title, area or owner" aria-label="Search">
+    <select id="fl" aria-label="Listing type"><option value="all">Rent and sale</option><option>Rent</option><option>Sale</option></select>
+    <select id="fs" aria-label="Status"><option value="all">Any status</option><option>Available</option><option>Reserved</option><option>Rented</option><option>Sold</option></select>
+    <select id="so" aria-label="Sort"><option value="new">Newest first</option><option value="lo">Price: low to high</option><option value="hi">Price: high to low</option></select>
+  </div>
+</section>
+
+<main class="grid" id="list"></main>
+</div>
+
+<dialog id="dlg">
+<form id="f" method="dialog" style="display:contents">
+  <div class="mh"><h2 id="mt">Add property</h2><button type="button" class="x" id="close" aria-label="Close">&times;</button></div>
+  <div class="fg">
+    <div class="full"><label for="title">Title</label><input id="title" required placeholder="3 BHK sea-facing apartment"></div>
+    <div><label for="cat">Category</label><select id="cat"><option>Residential</option><option>Commercial</option></select></div>
+    <div><label for="type">Property type</label><select id="type"></select></div>
+    <div><label for="lst">Listing</label><select id="lst"><option>Rent</option><option>Sale</option></select></div>
+    <div><label for="price" id="pl">Rent per month (₹)</label><input id="price" type="number" min="0" required></div>
+    <div><label for="deposit">Security deposit (₹)</label><input id="deposit" type="number" min="0"></div>
+    <div><label for="area">Area (sq ft)</label><input id="area" type="number" min="0"></div>
+    <div id="bedw"><label for="beds">Bedrooms</label><input id="beds" type="number" min="0"></div>
+    <div id="bathw"><label for="baths">Bathrooms</label><input id="baths" type="number" min="0"></div>
+    <div><label for="furn">Furnishing</label><select id="furn"><option>Unfurnished</option><option>Semi-furnished</option><option>Furnished</option></select></div>
+    <div class="full"><label for="loc">Address / locality</label><input id="loc" required placeholder="Bandra West, Mumbai"></div>
+    <div><label for="owner">Owner name</label><input id="owner"></div>
+    <div><label for="phone">Owner phone</label><input id="phone" type="tel"></div>
+    <div><label for="status">Status</label><select id="status"><option>Available</option><option>Reserved</option><option>Rented</option><option>Sold</option></select></div>
+    <div><label for="avail">Available from</label><input id="avail" type="date"></div>
+    <div class="full"><label for="notes">Notes</label><textarea id="notes" rows="3" placeholder="Parking, floor, nearby landmarks"></textarea></div>
+  </div>
+  <div class="mf"><button type="button" class="btn" id="cancel">Cancel</button><button class="btn primary" id="save" value="save">Save property</button></div>
+</form>
+</dialog>
+
+<script>
+const $=s=>document.querySelector(s);
+const TYPES={Residential:["Apartment","Villa","Independent house","Plot","Studio"],Commercial:["Office","Shop","Showroom","Warehouse","Plot"]};
+let props=[];
+const api=(url,method="GET",body)=>fetch(url,{method,headers:{"Content-Type":"application/json"},body:body?JSON.stringify(body):undefined}).then(r=>{if(!r.ok)throw new Error(r.status);return r.status===204?null:r.json()});
+const inr=n=>{n=+n||0;return n>=1e7?"₹"+(n/1e7).toFixed(2).replace(/\.?0+$/,"")+" Cr":n>=1e5?"₹"+(n/1e5).toFixed(2).replace(/\.?0+$/,"")+" L":"₹"+n.toLocaleString("en-IN")};
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+
+function fillTypes(){const c=$("#cat").value;$("#type").innerHTML=TYPES[c].map(t=>`<option>${t}</option>`).join("");}
+function syncForm(){
+  $("#pl").textContent=$("#lst").value==="Rent"?"Rent per month (₹)":"Asking price (₹)";
+  const res=$("#cat").value==="Residential"&&$("#type").value!=="Plot";
+  $("#bedw").style.display=$("#bathw").style.display=res?"":"none";
+}
+$("#cat").onchange=()=>{fillTypes();syncForm()};$("#type").onchange=$("#lst").onchange=syncForm;
+
+function render(){
+  const q=$("#q").value.toLowerCase(),l=$("#fl").value,s=$("#fs").value,so=$("#so").value;
+  let r=props.filter(p=>(cat==="all"||p.cat===cat)&&(l==="all"||p.lst===l)&&(s==="all"||p.status===s)&&(!q||[p.title,p.loc,p.owner,p.type].join(" ").toLowerCase().includes(q)));
+  r.sort((a,b)=>so==="lo"?a.price-b.price:so==="hi"?b.price-a.price:b.t-a.t);
+  const c=f=>props.filter(f).length;
+  $("#stats").innerHTML=[[props.length,"Total properties"],[c(p=>p.status==="Available"),"Available now"],[c(p=>p.lst==="Rent"),"For rent"],[c(p=>p.lst==="Sale"),"For sale"],[c(p=>p.status==="Rented"||p.status==="Sold"),"Rented or sold"]].map(x=>`<div class="stat"><b>${x[0]}</b><span>${x[1]}</span></div>`).join("");
+  $("#list").innerHTML=r.length?r.map(p=>{
+    const st=p.status==="Available"?"ok":p.status==="Reserved"?"warn":"bad";
+    return `<article class="card ${p.lst==="Sale"?"sale":""}">
+    <div class="row"><div><h3>${esc(p.title)}</h3><div class="loc">${esc(p.loc)}</div></div><span class="chip ${st}">${p.status}</span></div>
+    <div class="price">${inr(p.price)}<small>${p.lst==="Rent"?" / month":""}</small></div>
+    <div class="chips"><span class="chip">${p.cat}</span><span class="chip">${esc(p.type)}</span><span class="chip">For ${p.lst.toLowerCase()}</span>${p.furn?`<span class="chip">${p.furn}</span>`:""}</div>
+    <div class="specs">${p.area?`<span><b>${(+p.area).toLocaleString("en-IN")}</b> sq ft</span>`:""}${p.beds!==""&&p.beds!=null?`<span><b>${p.beds}</b> bed</span>`:""}${p.baths!==""&&p.baths!=null?`<span><b>${p.baths}</b> bath</span>`:""}${p.deposit?`<span>Deposit <b>${inr(p.deposit)}</b></span>`:""}</div>
+    ${p.notes?`<div class="loc">${esc(p.notes)}</div>`:""}
+    <div class="owner">Owner: ${esc(p.owner)||"Not added"}${p.phone?` &middot; <a href="tel:${esc(p.phone)}" style="color:inherit">${esc(p.phone)}</a>`:""}</div>
+    <div class="acts"><button class="btn" data-e="${p.id}">Edit</button><button class="btn danger" data-d="${p.id}">Delete</button></div></article>`}).join("")
+  :`<div class="empty">No properties match. Add a property or clear the filters.</div>`;
+}
+
+function open_(p){
+  editId=p?p.id:null;$("#mt").textContent=p?"Edit property":"Add property";
+  $("#f").reset();$("#cat").value=p?p.cat:"Residential";fillTypes();
+  if(p){["title","type","lst","price","deposit","area","beds","baths","furn","loc","owner","phone","status","avail","notes"].forEach(k=>$("#"+k).value=p[k]??"")}
+  syncForm();$("#dlg").showModal();
+}
+$("#add").onclick=()=>open_();
+$("#close").onclick=$("#cancel").onclick=()=>$("#dlg").close();
+$("#f").onsubmit=async e=>{
+  e.preventDefault();
+  const o={cat:$("#cat").value};
+  ["title","type","lst","price","deposit","area","beds","baths","furn","loc","owner","phone","status","avail","notes"].forEach(k=>o[k]=$("#"+k).value);
+  o.price=+o.price;
+  try{
+    if(editId){const u=await api("/api/properties/"+editId,"PUT",o);props=props.map(p=>p.id===editId?u:p)}
+    else props.push(await api("/api/properties","POST",o));
+  }catch(err){alert("Could not save. Check your connection and try again.");return}
+  $("#dlg").close();render();
+};
+$("#list").onclick=async e=>{
+  const ed=e.target.dataset.e,de=e.target.dataset.d;
+  if(ed)open_(props.find(p=>p.id==ed));
+  if(de&&confirm("Delete this property?")){try{await api("/api/properties/"+de,"DELETE");props=props.filter(p=>p.id!=de);render()}catch(err){alert("Could not delete.")}}
+};
+$("#tabs").onclick=e=>{const b=e.target.closest(".tab");if(!b)return;cat=b.dataset.c;document.querySelectorAll(".tab").forEach(t=>t.setAttribute("aria-pressed",t===b));render()};
+["#q","#fl","#fs","#so"].forEach(s=>$(s).oninput=render);
+$("#theme").onclick=()=>{const r=document.documentElement,d=getComputedStyle(r).getPropertyValue("--bg").trim()==="#0e1621";r.dataset.theme=d?"light":"dark"};
+fillTypes();syncForm();render();
+api("/api/properties").then(d=>{props=d;render()}).catch(()=>alert("Could not load properties."));
+</script>
+</body>
+</html>
